@@ -1,0 +1,10 @@
+[unstable]
+json-target-spec = true  #so that x86_64-idk.json is usable
+build-std-features = ["compiler-builtins-mem"]
+build-std = ["core", "compiler_builtins"]
+
+[build]
+target = "x86_64-idk.json"
+
+[target.'cfg(target_os = "none")']
+runner = "bootimage runner"
