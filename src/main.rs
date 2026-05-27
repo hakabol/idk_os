@@ -10,36 +10,31 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-static TEXT: &[u8] = b"Hello World!";
-
 #[unsafe(no_mangle)] //dont mangle(hash the name) of this func 
 pub extern "C" fn _start() -> ! {  //uses extern "C" for C`s naming convention`and the -> ! is to say that this fn wont end
     //Vga requires 2 bytes per letter one for the letter and one for the color     
     //which is a 4bit bg + a 4bit fg
     
-    let vga_buffer_pointer = 0xb8000 as *mut u8;
+    //for i in 0..80*25{
+    //    unsafe {
+    //        *vga_buffer_pointer.offset(i as isize * 2) = b' '; //offset is used tp change the value at n bits after the current loc
+    //        *vga_buffer_pointer.offset(i as isize * 2 + 1) = color;
 
-    let bg = 0x1;
-    let fg = 0x4;
+    //    }
+    //}
 
-    let color = (bg << 4) | fg; //shifts bg by 4 bits to the left(<<) and does or on bg and fg (|)
+    //vga_buffer::write_smthin();
+    
+    let color = vga_buffer::ColorCode::new(vga_buffer::Color::Red, vga_buffer::Color::Blue);
+    let mut writer = vga_buffer::Writer::new(color);
 
-    for i in 0..80*25{
-        unsafe {
-            *vga_buffer_pointer.offset(i as isize * 2) = b' '; //offset is used tp change the value at n bits after the current loc
-            *vga_buffer_pointer.offset(i as isize * 2 + 1) = color;
+    writer.paint_screen();
 
-        }
-    }
+    writer.row_position = 12;
+    writer.column_position = 37;
+    writer.write_string("Halloy\n");
+    writer.column_position = 36;
+    writer.write_string("Woruldy!\n");
 
-    vga_buffer::write_smthin();
-
-//    for (i, &byte) in TEXT.iter().enumerate(){
-//        unsafe {
-//            *vga_buffer_pointer.offset(i as isize * 2) = byte;
-//            *vga_buffer_pointer.offset(i as isize * 2 + 1) = color;
-//        }
-//    }
-//
     loop {}
 }

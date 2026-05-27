@@ -28,7 +28,7 @@ pub enum Color {
 pub struct ColorCode(u8);
 
 impl ColorCode{
-    fn new(fg: Color, bg: Color) -> Self {
+    pub fn new(fg: Color, bg: Color) -> Self {
         ColorCode((bg as u8) << 4 | (fg as u8)) //shifts bg by 4 bits to the left(<<) and does or on bg and fg (|)
 
     }
@@ -47,10 +47,10 @@ struct Buffer {
 }
 
 pub struct Writer {
-    column_position: usize,
-    row_position: usize,
-    color_code: ColorCode,
-    buffer: &'static mut Buffer,
+    pub column_position: usize,
+    pub row_position: usize,
+    pub color_code: ColorCode,
+    pub buffer: &'static mut Buffer,
 }
 
 impl Writer{
@@ -99,6 +99,12 @@ impl Writer{
     pub fn new_line(&mut self) {
         self.row_position += 1;
         self.column_position = 0;
+    }
+
+    pub fn paint_screen(&mut self){
+        for _ in 0..BUFFER_HEIGHT*BUFFER_WIDTH{
+            self.write_byte(b' ');
+        }
     }
 
 }
