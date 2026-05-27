@@ -1,7 +1,7 @@
 #![no_std] //disables std
 #![no_main] //makes it so that main is no longer needed
 
-use core::panic::PanicInfo;
+use core::{fmt::Write, panic::PanicInfo};
 
 mod vga_buffer;
 
@@ -36,5 +36,6 @@ pub extern "C" fn _start() -> ! {  //uses extern "C" for C`s naming convention`a
     writer.column_position = 36;
     writer.write_string("Woruldy!\n");
 
+    write!(writer, "idk 2^2 = {}", 2_i32.pow(2)).unwrap();
     loop {}
 }

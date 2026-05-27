@@ -1,4 +1,5 @@
 use volatile::Volatile;
+use core::fmt;
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
@@ -109,6 +110,13 @@ impl Writer{
         }
     }
 
+}
+
+impl fmt::Write for Writer{
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
 }
 
 pub fn write_smthin(){
