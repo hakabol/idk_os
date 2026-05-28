@@ -15,13 +15,10 @@ pub extern "C" fn _start() -> ! {  //uses extern "C" for C`s naming convention`a
     //Vga requires 2 bytes per letter one for the letter and one for the color     
     //which is a 4bit bg + a 4bit fg
 
-    let color = vga_buffer::ColorCode::new(vga_buffer::Color::Red, vga_buffer::Color::Blue);
-    let mut writer = vga_buffer::Writer::new(color);
-
-    writer.paint_screen();
+    vga_buffer::WRITER.lock().paint_screen();
 
     for i in 0..500000{
-        write!(writer, "{}\n", i).unwrap();
+        write!(vga_buffer::WRITER.lock(), "{}\n", i).unwrap();
     }
 
     loop {}
