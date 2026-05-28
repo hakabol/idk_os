@@ -60,7 +60,7 @@ impl Writer{
     pub fn new(colorcode: ColorCode) -> Self{
         Writer { 
             column_position: 0, 
-            row_position: 0, 
+            row_position: BUFFER_HEIGHT, 
             color_code: colorcode, 
             buffer: unsafe {&mut *(0xb8000 as *mut Buffer)} 
         }
@@ -102,11 +102,33 @@ impl Writer{
     pub fn new_line(&mut self) {
         self.row_position += 1;
         self.column_position = 0;
+
     }
 
     pub fn paint_screen(&mut self){
-        for _ in 0..BUFFER_HEIGHT*BUFFER_WIDTH{
-            self.write_byte(b' ');
+        for row in 0..BUFFER_HEIGHT{
+            self.clear_row(row);
+        }
+    }
+
+    pub fn screen_down(&mut self){
+        for row in 1..BUFFER_HEIGHT{
+            for col in 0..BUFFER_WIDTH{
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(character);
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT - 1);
+    }
+
+    pub fn clear_row(&mut self, row: usize){
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+
+        for col in 0..BUFFER_WIDTH{
+            self.buffer.chars[row][col].write(blank);
         }
     }
 
