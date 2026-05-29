@@ -6,7 +6,8 @@ use core::{fmt::Write, panic::PanicInfo};
 mod vga_buffer;
 
 #[panic_handler]  //since there isnt any stds the panic isnt handled
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
 
@@ -17,9 +18,14 @@ pub extern "C" fn _start() -> ! {  //uses extern "C" for C`s naming convention`a
 
     vga_buffer::WRITER.lock().paint_screen();
 
-    for i in 0..500000{
-        write!(vga_buffer::WRITER.lock(), "{}\n", i).unwrap();
+    for i in 0..1000{
+        println!("{}", i)
     }
+
+    println!("hello world\n");
+    println!("!");
+
+    panic!("Some panic message");
 
     loop {}
 }

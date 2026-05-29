@@ -9,7 +9,6 @@ const BUFFER_WIDTH: usize = 80;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        row_position: BUFFER_HEIGHT,
         color_code: ColorCode::new(Color::Red, Color::Blue),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
@@ -62,7 +61,6 @@ pub struct Buffer {
 
 pub struct Writer {
     pub column_position: usize,
-    pub row_position: usize,
     pub color_code: ColorCode,
     pub buffer: &'static mut Buffer,
 }
@@ -71,7 +69,6 @@ impl Writer{
     pub fn new(colorcode: ColorCode) -> Self{
         Writer { 
             column_position: 0, 
-            row_position: BUFFER_HEIGHT, 
             color_code: colorcode, 
             buffer: unsafe {&mut *(0xb8000 as *mut Buffer)} 
         }
@@ -85,7 +82,7 @@ impl Writer{
                     self.new_line();
                 }
 
-                let row = self.row_position % BUFFER_HEIGHT;
+                let row = BUFFER_HEIGHT - 1;
                 let col = self.column_position;
 
                 let color_code = self.color_code;
@@ -111,8 +108,8 @@ impl Writer{
     }
 
     pub fn new_line(&mut self) {
-        self.row_position += 1;
         self.column_position = 0;
+        self.screen_down();
 
     }
 
@@ -152,14 +149,19 @@ impl fmt::Write for Writer{
     }
 }
 
-pub fn write_smthin(){
-    let mut writer = Writer{
-        column_position: 34,
-        row_position: 12,
-        color_code: ColorCode::new(Color::Red, Color::Blue),
-        buffer: unsafe {&mut *(0xb8000 as *mut Buffer)}
-    };
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
+}
 
-    writer.write_byte(b'H');
-    writer.write_string("ello World!")
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }
